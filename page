@@ -1,0 +1,508 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Simple Adventure Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #story {
+            margin-top: 20px;
+        }
+        a.option-link {
+            display: block;
+            margin-top: 10px;
+            color: blue;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Explore the World</h1>
+    <div id="story">
+        <div id="story-content"></div>
+    </div>
+    <button id="back-button" style="display:none;">Back</button>
+    <button id="restart-button">Restart Game</button>
+
+    <script>
+        const stories = {
+            1: {
+                text: "The simmering light crosses the wavy sea,<br\>leaving the highlight of the day,<br\>you move through the bushes,<br\>here you wandered into a territory not for man",
+                options: { 2: "Wolf hill" }
+            },		
+            2: {
+                text: "sphinx, your female friend stopped in her tracks<br/><br/>Player gets Elysian club attack 50 defense 250 speed 0 spell attack 0 <br\><br\>The giant wolves snivered under the moonlight<br\>They knew four humans are here<br\>But for some reason, they departed instead, perhaps for an easier prey",
+                options: { 3: "The struggle", 1002: "Track down the wolves" }
+            },	
+            1002: {
+                text: "You followed the giant wolves and found their pups, after waiting for the parents to leave, you decided to slay the left behinds<br/><br/> Pups attack 10 defense 100 speed 0 speed attack 0",
+                options: { 4: "Scouting a village" }
+            },	
+            3: {
+                text: "The sky is grey and the adventurers grew adventurous.<br/> Inside the scabbard of the relic sword lies a dormant power.<br/> That vile power to lure anyone into the minds of hopelessness.<br/> And that is why the hero never reveals the edge of his sword.<br/> Unless all hope is lost. ",
+                options: { 1: "Orange descent", 4: "Scouting a village" }
+            },		
+            4: {
+                text: "Toman shouted: I see a village<br\>Daggon, the player nodded<br\>Everyone took it as sign to enter the rustic field with mendable stick walls<br\>Houses were little, smiles were little but the air is cooling in here",
+                options: { 5: "The city of rachel" }
+            },	
+            5: {
+                text: "Unwelcomed in the city of statues and artifacts,<br/>a sister tolerates your party's pitiful presence and serves you a drink at the cow barn.<br/>During your conversation with her, you learn the town is celebrating the reunion of the angel.<br/>If you offer a pumpkin, you will be blessed;<br/>if you offer an enchantment, you will be lucky enough to be spirited away.",
+                options: { 6: "Whispers in the night" }
+            },		
+            6: {
+                text: "Conan whispered in the night: Maybe I could steal an accessory<br\>Sphinx: Even so, it wouldn't be enchanted<br\>Toman snores<br\>Daggon: Nobody steals anything",
+                options: { 1006: "Day breaks" }
+            },	
+			1006: {
+				text: "The street is crowded with maniac fans,<br/> Where would your party wander to?",
+				options: { 7: "Goblin dwell", 8: "Pumpkin field" }
+			},
+            7: {
+                text: "The goblins snicker at fish and cackle.<br/>He who speaks shall show no mercy.<br/>Better to remain hidden in secrecy<br/>than to feast on tasteless goblins.",
+                options: { 9: "The hall of worshipping" }
+            },
+            8: {
+                text: "You discover a vibrant orange pumpkin partially buried in the sand.<br/>Its rich, sweet flesh could prove invaluable on your journey.<br/><br/>Room objects:<br/>Get pumpkin <br/>(Note it into your inventory)",
+                options: { 9: "The hall of worshipping" }
+            },
+            9: {
+                text: "The hall doors of worship are sealed tight. <br/> The acolyte sister who assisted you is also trapped behind the gates. <br/> Acolyte: “Now we can’t offer our pumpkins.” <br/> Daggon, the player, suddenly realizes that the doors aren't locked; the people inside are intentionally blocking the entrance. <br/> Acolyte: “This event occurs only once every four years. They’re doing this to prevent the angel from selecting us for being spirited away.”",
+                options: { 10: "Break the door" }
+            },	
+            10: {
+                text: "Enemies:<br/>Tightly sealed door attack 0 defense 300 speed 0 spell attack 0<br/><br/>Note: You have to defeat all enemies in all of your adventures to move to another page<br/><br/>Note 2: If you are defeated even once in combat,<br/> you will have to restart game, reset gold to 0<br/> and clear all of your inventories",
+                options: { 11: "Enter the hall" }
+            },		
+            11: {
+                text: "The worshippers are surprised of the boisterous act,<br/> the worshipping halts briefly but continues anyway<br/><br/> Decide whether you want to offer your pumpkin to the angel",
+                options: { 12: "Offer a pumpkin", 13: "No, I dun have any" }
+            },			
+            12: {
+                text: "The angel strays like a curtain blind<br/>Everyone was amazed by the elegance of the seraphim<br/>A halo appears on everyone's head<br/><br/>You have been blessed<br/>Shop objects:<br/>Pay 1 pumpkin to get 1 blessed accessory",
+                options: { 14: "Enter the staircase hallway" }
+            },				
+            13: {
+                text: "Everyone was happy you didn't offer anything<br/>But in a plot twist, the angel mingled with you<br/>You have been entranced in her melodious words<br/>Then you realized your relic sword have been plundered by the very goddess herself",
+                options: { 15: "Step into the whirlwind" }
+            },			
+            14: {
+                text: "There were grapefruit juice fountain<br/>Melodious flute and dancing elves<br/>You have a weird habit of touching your back<br/>Just to make sure your sword isn't dropped<br/><br/>Room objects:<br/>Relic sword attack 170 health 400 speed 7 spell attack 0",
+                options: { 16: "Walk in the talisman shop" }
+            },				
+            15: {
+                text: "Daggon: I didn't offer that sword, please return it back<br/>Angel: This is the day of offering and you have chosen to enter the sacred ground<br/>As much as you try to chase the flying feathered angel, both of you just spinned upwards the whirlwind<br/><br/>Room objects:<br/>A feather",
+                options: { 16: "Walk in the talisman shop" }
+            },			
+            16: {
+                text: "The shopkeeper smiles<br/>but answers none unless you have gold",
+                options: { 17: "Identify the blessed accessory", 18: "Identify the feather" }
+            },			
+            17: {
+                text: "You have no gold but Sphinx nudged the keeper instead<br/>Immune to charisma, the keeper simply replied<br/>You are now at the center of deltora, there are plenty of quests and gold to be earned here",
+                options: { 19: "Gates of phoenix" }
+            },			
+            18: {
+                text: "The keeper didn't bothered to serve any guests with no gold<br/>Until you revealed the feather<br/>Using a monocle, he attempts to buy the feather from you without telling you what it is<br/><br/>Shop objects:<br/>Pay 1 feather to get 1000 gold",
+                options: { 19: "Gates of phoenix" }
+            },
+			19: {
+				text: "The cold wind rises, the wide scenery makes you realize<br/>Your party of four have stepped into an unknown dreamy land<br/>Conan: Where are we?<br/>Daggon shakes his head nervously",
+				options: { 20: "Dwarf hills" }
+			},
+			20: {
+				text: "The gnome laughs at the barely armed team<br/> Ryard: You guys are going to die out here, have some free weapons<br/>Shop objects<br/>Pay 0 gold to get Lightning mace attack 90 health 180 speed 0 spell attack 100<br/>Pay 0 gold to get Frostraider bow attack 0 health 190 speed 10 spell attack 200",
+				options: { 21: "The well", 22: "The tree" }
+			},
+			21: {
+				text: "Your party have replenished<br/>Room objects:<br/>Get 4 bottles of water",
+				options: { 23: "Converstations with the wizard" }
+			},
+			22: {
+				text: "Trying to climb the tree for acorns,<br/>shockingly, the tree starts squirming and swallowing Toman<br/>Toman: Pull me out!<br/><br/>Eventually, everyone pulled Toman out",
+				options: { 23: "Converstations with the wizard" }
+			},
+			23: {
+				text: "The wizard greets everyone as though he has been expecting us,<br/>Wizard: You guys shouldn't come in this realm, it have been attacked by hordes of demons and rivals,<br/><br/>Daggon: We have weapons and people<br/>Wizard: These monsters are not in the form from your original world, they are bigger and deadlier",
+				options: { 24: "Show off your blessed accessory", 25: "Show off a weapon" }
+			},
+			24: {
+				text: "Wizard: No way! This is the sprite necklace, how did you get it?<br/>sphinx: By the gratitude of the angel<br/><br/>Shop objects:<br/>Pay 1 blessed accessory to get sprite necklace",
+				options: { 26: "The ladder" }
+			},
+			25: {
+				text: "Wizard: You are a fool! This weapon is cursed<br/><br/>Shop objects:Pay 1 of any weapon to receive downgraded weapon + 50 attack, + 5 speed, add a cursed in front of the weapon's name",
+				options: { 26: "The ladder" }
+			},
+			26: {
+				text: "Dwarves: This is our home, you dare to challenge us?",
+				options: { 27: "Bribe with 1 sprite necklace", 28: "A call for a fight" }
+			},
+			27: {
+				text: "Dwarves: You can't bribe us, we already have....<br/> Dwarf from behind: Oh, that glimmer<br/><br/>Enemy interaction:<br/>Pay 1 sprite necklace to move to another page",
+				options: { 29: "The clifftop", 30: "The circular shaft", 31: "The broken train cart" }
+			},
+			28: {
+				text: "Conan: That's nasty, we are only just passing through<br/>Sphinx: Dun regret picking a fight with us<br/><br/> Dwarves attack 150 health 150 speed 0 spell attack 0",
+				options: { 29: "The clifftop", 30: "The circular shaft", 31: "The broken train cart" }
+			},
+			
+        };
+
+        let historyStack = JSON.parse(localStorage.getItem('historyStack')) || []; // Load history stack from localStorage
+
+        function displayPage(pageNumber) {
+            const storyContent = document.getElementById('story-content');
+            storyContent.innerHTML = stories[pageNumber].text;
+
+            // Add options
+            const optionsDiv = document.createElement('div');
+            Object.entries(stories[pageNumber].options).forEach(([nextPage, description]) => {
+                const link = document.createElement('a');
+                link.innerText = description;
+                link.href = "#";
+                link.className = "option-link";
+                link.onclick = (event) => {
+                    event.preventDefault();
+                    historyStack.push(pageNumber); // Save current page to history before moving
+                    localStorage.setItem('historyStack', JSON.stringify(historyStack)); // Save updated historyStack to localStorage
+                    displayPage(nextPage);
+                    localStorage.setItem('lastPage', nextPage);
+                    document.getElementById('back-button').style.display = "inline-block"; // Show back button
+                };
+                optionsDiv.appendChild(link);
+            });
+
+            storyContent.appendChild(optionsDiv);
+        }
+
+        function goBack() {
+            const previousPage = historyStack.pop(); // Get the last page
+            if (previousPage) {
+                displayPage(previousPage);
+                localStorage.setItem('historyStack', JSON.stringify(historyStack)); // Save updated historyStack to localStorage
+                localStorage.setItem('lastPage', previousPage);
+            }
+            if (historyStack.length === 0) {
+                document.getElementById('back-button').style.display = "none"; // Hide back button if no more history
+            }
+        }
+
+        function restartGame() {
+            historyStack = []; // Clear history
+            localStorage.removeItem('lastPage');
+            localStorage.removeItem('historyStack');
+            displayPage(1);
+            document.getElementById('back-button').style.display = "none";
+        }
+
+        document.getElementById('back-button').onclick = goBack;
+        document.getElementById('restart-button').onclick = restartGame;
+
+        const savedPage = localStorage.getItem('lastPage') || 1;
+        displayPage(savedPage);
+
+        // Show back button if there's history
+        if (historyStack.length > 0) {
+            document.getElementById('back-button').style.display = "inline-block";
+        }
+    </script>
+</body>
+</html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8"></meta>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"></meta>
+    <title>Combat Simulator</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        #combat-log { margin-bottom: 20px; border: 1px solid #ccc; padding: 10px; height: 200px; overflow-y: scroll; }
+        button { margin: 5px; }
+    </style>
+</head>
+<body>
+
+<h1>Combat Simulator</h1>
+<div>
+    <h3>Player Stats</h3>
+    <label for="player-attack">Attack:</label>
+    <input id="player-attack" type="number" value="50" /><br />
+    <label for="player-defense">Defense:</label>
+    <input id="player-defense" type="number" value="200" /><br />
+    <label for="player-speed">Speed:</label>
+    <input id="player-speed" type="number" value="20" /><br />
+    <label for="player-spell-attack">Spell Attack:</label>
+    <input id="player-spell-attack" type="number" value="30" /><br />
+    
+    <h3>Enemy Stats</h3>
+    <label for="enemy-attack">Attack:</label>
+    <input id="enemy-attack" type="number" value="40" /><br />
+    <label for="enemy-defense">Defense:</label>
+    <input id="enemy-defense" type="number" value="140" /><br />
+    <label for="enemy-speed">Speed:</label>
+    <input id="enemy-speed" type="number" value="15" /><br />
+    <label for="enemy-spell-attack">Spell Attack:</label>
+    <input id="enemy-spell-attack" type="number" value="25" /><br />
+</div>
+
+<button id="start-combat-btn">Battle</button>
+<div id="combat-log"></div>
+
+<script>
+    // Load stats from local storage
+    function loadStats() {
+        const playerStats = JSON.parse(localStorage.getItem('playerStats'));
+        const enemyStats = JSON.parse(localStorage.getItem('enemyStats'));
+        
+        if (playerStats) {
+            document.getElementById('player-attack').value = playerStats.attack;
+            document.getElementById('player-defense').value = playerStats.defense;
+            document.getElementById('player-speed').value = playerStats.speed;
+            document.getElementById('player-spell-attack').value = playerStats.spellAttack;
+        }
+
+        if (enemyStats) {
+            document.getElementById('enemy-attack').value = enemyStats.attack;
+            document.getElementById('enemy-defense').value = enemyStats.defense;
+            document.getElementById('enemy-speed').value = enemyStats.speed;
+            document.getElementById('enemy-spell-attack').value = enemyStats.spellAttack;
+        }
+    }
+
+    // Save stats to local storage
+    function saveStats() {
+        const player = {
+            attack: parseInt(document.getElementById('player-attack').value),
+            defense: parseInt(document.getElementById('player-defense').value),
+            speed: parseInt(document.getElementById('player-speed').value),
+            spellAttack: parseInt(document.getElementById('player-spell-attack').value),
+        };
+
+        const enemy = {
+            attack: parseInt(document.getElementById('enemy-attack').value),
+            defense: parseInt(document.getElementById('enemy-defense').value),
+            speed: parseInt(document.getElementById('enemy-speed').value),
+            spellAttack: parseInt(document.getElementById('enemy-spell-attack').value),
+        };
+
+        localStorage.setItem('playerStats', JSON.stringify(player));
+        localStorage.setItem('enemyStats', JSON.stringify(enemy));
+    }
+
+    function log(message) {
+        const combatLog = document.getElementById('combat-log');
+        combatLog.innerHTML += message + '<br />';
+        combatLog.scrollTop = combatLog.scrollHeight; // Auto scroll to bottom
+    }
+
+    function startCombat() {
+        const player = {
+            defense: parseInt(document.getElementById('player-defense').value),
+            attack: parseInt(document.getElementById('player-attack').value),
+            speed: parseInt(document.getElementById('player-speed').value),
+            spellAttack: parseInt(document.getElementById('player-spell-attack').value),
+        };
+        
+        const enemy = {
+            defense: parseInt(document.getElementById('enemy-defense').value),
+            attack: parseInt(document.getElementById('enemy-attack').value),
+            speed: parseInt(document.getElementById('enemy-speed').value),
+            spellAttack: parseInt(document.getElementById('enemy-spell-attack').value),
+        };
+
+        let turn = 1;
+        const combatTurn = () => {
+            if (player.defense <= 0 || enemy.defense <= 0) {
+                log(player.defense <= 0 ? "Player has been defeated!" : "Enemy has been defeated!");
+                return; // End combat
+            }
+
+            const playerDice = Math.floor(Math.random() * 100) + 1; // Player's dice roll
+            const enemyDice = Math.floor(Math.random() * 100) + 1; // Enemy's dice roll
+
+            const playerRoll = playerDice + player.speed; // Final player roll
+            const enemyRoll = enemyDice + enemy.speed; // Final enemy roll
+
+            log(`Turn ${turn}:`);
+            log(`Player's speed: ${player.speed}, Dice: ${playerDice}, Total: ${playerRoll}`);
+            log(`Enemy's speed: ${enemy.speed}, Dice: ${enemyDice}, Total: ${enemyRoll}`);
+
+            // Player attack if attack > 0
+            if (playerRoll >= enemyRoll && player.attack > 0) {
+                enemy.defense -= player.attack;
+                log(`Player strikes! Enemy defense: ${enemy.defense}`);
+            } else if (enemy.attack > 0) { // Enemy attack if attack > 0
+                player.defense -= enemy.attack;
+                log(`Enemy strikes! Player defense: ${player.defense}`);
+            }
+
+            // Spell attacks (always deal damage) - only cast if spell attack > 0
+            if (turn % 2 === 0) {
+                if (player.spellAttack > 0) {
+                    enemy.defense -= player.spellAttack;
+                    log(`Player casts spell! Enemy defense: ${enemy.defense}`);
+                }
+                if (enemy.spellAttack > 0) {
+                    player.defense -= enemy.spellAttack;
+                    log(`Enemy casts spell! Player defense: ${player.defense}`);
+                }
+            }
+
+            turn++;
+            setTimeout(combatTurn, 1000); // Wait 1 second before next turn
+        };
+
+        combatTurn(); // Start the first combat turn
+    }
+
+    // Save stats when input changes
+    document.querySelectorAll('input[type="number"]').forEach(input => {
+        input.addEventListener('change', saveStats);
+    });
+
+    document.getElementById('start-combat-btn').addEventListener('click', startCombat);
+
+    // Load stats when the page is loaded
+    window.onload = loadStats;
+</script>
+
+</body>
+</html>
+
+
+
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8"></meta>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"></meta>
+    <title>Inventory Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.5;
+            margin: 20px;
+        }
+        #inventory-list {
+            margin-top: 20px;
+            list-style-type: none;
+            padding: 0;
+        }
+        .inventory-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px;
+            border: 1px solid #ccc;
+            margin-bottom: 5px;
+            border-radius: 5px;
+        }
+        button {
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Player Inventory Management</h1>
+
+<h3>Gold:</h3>
+<input id="gold-input" type="number" value="0" />
+<button id="update-gold-btn">Update Gold</button>
+
+<h3>Add Item:</h3>
+<input id="item-input" placeholder="Enter item name" type="text" />
+<button id="add-item-btn">Add Item</button>
+
+<h3>Current Inventory:</h3>
+<p id="current-gold">Gold: 0</p> <!-- Display current gold here -->
+<ul id="inventory-list"></ul>
+
+<script>
+    // Initialize inventory if it doesn't exist
+    if (!localStorage.getItem('playerInventory')) {
+        const initialInventory = { gold: 0, items: [] };
+        localStorage.setItem('playerInventory', JSON.stringify(initialInventory));
+    }
+
+    // Function to render the inventory list and gold
+    function renderInventory() {
+        const inventory = JSON.parse(localStorage.getItem('playerInventory'));
+        const inventoryList = document.getElementById('inventory-list');
+        inventoryList.innerHTML = ''; // Clear current list
+
+        // Update gold input field and display
+        document.getElementById('gold-input').value = inventory.gold;
+        document.getElementById('current-gold').textContent = `Gold: ${inventory.gold}`; // Update displayed gold
+
+        inventory.items.forEach((item, index) => {
+            const li = document.createElement('li');
+            li.classList.add('inventory-item');
+            li.textContent = item;
+
+            const removeBtn = document.createElement('button');
+            removeBtn.textContent = 'Remove';
+            removeBtn.onclick = () => removeItem(index); // Pass the index to removeItem function
+
+            li.appendChild(removeBtn);
+            inventoryList.appendChild(li);
+        });
+    }
+
+    // Function to update the amount of gold
+    function updateGold() {
+        const goldInput = document.getElementById('gold-input');
+        const goldAmount = parseInt(goldInput.value) || 0; // Default to 0 if input is not a number
+
+        const inventory = JSON.parse(localStorage.getItem('playerInventory'));
+        inventory.gold = goldAmount;
+        localStorage.setItem('playerInventory', JSON.stringify(inventory));
+
+        renderInventory(); // Refresh the display
+    }
+
+    // Function to add an item to the inventory
+    function addItem() {
+        const itemInput = document.getElementById('item-input');
+        const itemName = itemInput.value.trim();
+        if (itemName) {
+            const inventory = JSON.parse(localStorage.getItem('playerInventory'));
+            inventory.items.push(itemName);
+            localStorage.setItem('playerInventory', JSON.stringify(inventory));
+            itemInput.value = ''; // Clear the input
+            renderInventory(); // Refresh the inventory display
+        } else {
+            alert("Please enter an item name.");
+        }
+    }
+
+    // Function to remove an item from the inventory
+    function removeItem(index) {
+        const inventory = JSON.parse(localStorage.getItem('playerInventory'));
+        inventory.items.splice(index, 1); // Remove the item at the specified index
+        localStorage.setItem('playerInventory', JSON.stringify(inventory));
+        renderInventory(); // Refresh the inventory display
+    }
+
+    // Render the inventory on initial load
+    renderInventory();
+
+    // Event listeners
+    document.getElementById('update-gold-btn').addEventListener('click', updateGold);
+    document.getElementById('add-item-btn').addEventListener('click', addItem);
+</script>
+
+</body>
+</html>
